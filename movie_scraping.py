@@ -47,12 +47,15 @@ def get_movie_value(soup, field_name):
         return None
 
 # step 4
-# loop through all movie urls and scrape data!!
+# creating empty lists to store data...this step can be changed later
 movie_title = []
 movie_dtg = []
 movie_runtime = []
 movie_rating = []
 movie_release_date = []
+
+
+# looping through and scraping elements from each movie url!!
 for movie in movie_url_to_scrape:
     page = urllib2.urlopen(movie)
     soup = BeautifulSoup(page)
@@ -67,8 +70,6 @@ for movie in movie_url_to_scrape:
     movie_runtime.append(runtime)
     movie_rating.append(rating)
     movie_release_date.append(release_date)
-
-
 
 
 
