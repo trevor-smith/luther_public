@@ -2,15 +2,17 @@
 import urllib2
 from bs4 import BeautifulSoup
 import re
+import pickle
 
-# step 1
+
 # getting the list of all the domestic urls to scrape
+# this will help get us the list of movies and their respective id's
+# with these page id's we can construct the url list to scrape
 url_domestic_list = []
 page_number = range(0,135)
 for i in page_number:
     url_domestic_list.append("http://www.boxofficemojo.com/alltime/domestic.htm?page=" + str(page_number[i]) + "&p=.htm")
-
-# step 2       
+       
 # looping through all the domestic url pages and scraping the movie urls
 id_list = []
 movie_url_to_scrape = []
@@ -27,11 +29,40 @@ for url in url_domestic_list:
         id_list.append(i[1])
     id_list_unique = set(id_list)
 	# creating the list of movie urls that we will be scraping
+	# this is done by using a templated url and adding the id to make a valid movie url
     for id in id_list:
         movie_url_to_scrape.append("http://www.boxofficemojo.com/movies/?id" + id)
     movie_url_to_scrape_unique = set(movie_url_to_scrape)
- 
-# step 3   
+    
+# saving the list to my local so I can access it later
+# this uses pickle
+with open('list_of_movie_urls.pkl', 'w') as f:
+    pickle.dump(movie_url_to_scrape_unique, f)
+    
+# now to open it back up to use another time
+with open('list_of_movie_urls.pkl', 'r') as f:
+    domestic_urls = pickle.load(f)
+# now the object 'domestic_urls' will have all the urls we previously scraped
+
+# need to split the domestic urls because we need to add in '?page=intl&'
+# this will take us to the foreign box office page where we scrape international country revenue
+domestic_split_urls = []
+for url in domestic_urls:
+    domestic_split_urls.append(url.split("?"))
+    
+# getting foreign urls by just augmenting the domestic movie urls
+foreign_urls = []
+for url in domestic_split_urls:
+    foreign_urls.append(url[0] + "?page=intl&" + url[1])
+
+# saving the list to my local so I can access it later
+with open('foreign_urls.pkl', 'w') as f:
+    pickle.dump(foreign_urls, f)
+
+# this is how I could load the foreign urls from my local
+ with open('foreign_urls.pkl', 'r') as f:
+    foreign_urls = pickle.load(f)
+
 # function for scraping the webpage
 def get_movie_value(soup, field_name):
     """
@@ -47,22 +78,15 @@ def get_movie_value(soup, field_name):
     else:
         return None
 
-# step 4
-# creating empty lists to store data...this step can be changed later
-movie_title = []
-movie_dtg = []
-movie_runtime = []
-movie_rating = []
-movie_release_date = []
 
 # import domestic urls from local
 with open('list_of_movie_urls.pkl', 'r') as f:
-    x = pickle.load(f)
+    domestic_urls = pickle.load(f)
 
 # looping through and scraping elements from each movie url!!
-domestic_url = {}
+domestic_dict = {}
 
-for movie in x:
+for movie in domestic_urls:
     movie = str(movie)
     hdr = {'User-Agent' : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36"}
     req = urllib2.Request(movie, headers=hdr)
@@ -90,7 +114,7 @@ for movie in x:
 
 # import foreign_urls from local
 with open('foreign_urls.pkl', 'w') as f:
-    pickle.dump(foreign_urls, f)
+    foreign_urls = pickle.load(f)
 
 # looping through and scraping foreign revenue elements
 foreign_dict = {}
