@@ -55,33 +55,74 @@ movie_runtime = []
 movie_rating = []
 movie_release_date = []
 
+# import domestic urls from local
+with open('list_of_movie_urls.pkl', 'r') as f:
+    x = pickle.load(f)
 
 # looping through and scraping elements from each movie url!!
-for movie in movie_url_to_scrape:
-    page = urllib2.urlopen(movie)
-    soup = BeautifulSoup(page)
-    title_string = soup.find("title").text
-    title =  title_string.split(" (")[0].strip()
-    dtg = get_movie_value(soup, "Domestic Total")
-    runtime = get_movie_value(soup, "Runtime")
-    rating = get_movie_value(soup, "MPAA Rating")
-    release_date = get_movie_value(soup, "Release Date")
-    movie_title.append(title)
-    movie_dtg.append(dtg)
-    movie_runtime.append(runtime)
-    movie_rating.append(rating)
-    movie_release_date.append(release_date)
+domestic_url = {}
+
+for movie in x:
+    movie = str(movie)
+    hdr = {'User-Agent' : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36"}
+    req = urllib2.Request(movie, headers=hdr)
+    try:
+        page = urllib2.urlopen(req)
+    except:
+        print movie
+    else:
+        soup = BeautifulSoup(page)
+        title_string = soup.find("title").text
+        title =  title_string.split(" (")[0].strip()
+        dtg = get_movie_value(soup, "Domestic Total")
+        runtime = get_movie_value(soup, "Runtime")
+        rating = get_movie_value(soup, "MPAA Rating")
+        release_date = get_movie_value(soup, "Release Date")
+        genre = get_movie_value(soup, "Genre: ")
+        production_budget = get_movie_value(soup, "Production Budget")
+        worldwide = get_movie_value(soup, "Worldwide:")
+        director = get_movie_value(soup, "Director")
+        writers = get_movie_value(soup, "Writers:")
+        actors = get_movie_value(soup, "Actors:")
+        domestic_dict.setdefault(title, []).append(tuple((dtg, runtime, rating, release_date, genre,
+                                                             production_budget)))
+    	
+
+# import foreign_urls from local
+with open('foreign_urls.pkl', 'w') as f:
+    pickle.dump(foreign_urls, f)
 
 # looping through and scraping foreign revenue elements
 foreign_dict = {}
-for movie in movie_url_to_scrape:
-    page = urllib2.urlopen(movie)
-    soup = BeautifulSoup(page)
-    rows = soup.find('table', border="3").find('tr').find_all(bgcolor="#ffffff")
-	title = soup_foreign_5year.find('title').get_text().split(" (")[0]
-	for row in rows:
-    	cells = row.find_all("td")
-    	foreign_dict.setdefault(title, []).append(tuple((cells[0].get_text(), cells[5].get_text()))
-
+for movie in foreign_urls:
+    hdr = {'User-Agent' : "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.118 Safari/537.36"}
+    req = urllib2.Request(movie, headers=hdr)
+    try:
+        page = urllib2.urlopen(req)
+    except:
+        print movie
+    else:
+        soup = BeautifulSoup(page)
+        rows_odd = soup.find('table', border="3").find('tr').find_all(bgcolor="#ffffff")
+        rows_even = soup.find('table', border="3").find('tr').find_all(bgcolor="#f4f4ff")
+        title = soup.find('title').get_text().split(" (")[0]
+        for row in rows_odd:
+            cells = row.find_all("td")
+            #print tuple((cells[0].get_text(), cells[5].get_text()))
+            try:
+                foreign_dict.setdefault(title, []).append(tuple((cells[0].get_text(), cells[5].get_text())))
+            except:
+                None
+            else:
+                None
+        for row in rows_even:
+            cells = row.find_all("td")
+            try:
+                foreign_dict.setdefault(title, []).append(tuple((cells[0].get_text(), cells[5].get_text())))
+            except:
+                None
+            else:
+                None
+            #print tuple((cells[0].get_text(), cells[5].get_text()))
   
 
