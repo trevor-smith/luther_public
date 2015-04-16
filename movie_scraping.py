@@ -1,6 +1,7 @@
 # packages to import
 import urllib2
 from bs4 import BeautifulSoup
+import re
 
 # step 1
 # getting the list of all the domestic urls to scrape
@@ -71,7 +72,16 @@ for movie in movie_url_to_scrape:
     movie_rating.append(rating)
     movie_release_date.append(release_date)
 
-
+# looping through and scraping foreign revenue elements
+foreign_dict = {}
+for movie in movie_url_to_scrape:
+    page = urllib2.urlopen(movie)
+    soup = BeautifulSoup(page)
+    rows = soup.find('table', border="3").find('tr').find_all(bgcolor="#ffffff")
+	title = soup_foreign_5year.find('title').get_text().split(" (")[0]
+	for row in rows:
+    	cells = row.find_all("td")
+    	foreign_dict.setdefault(title, []).append(tuple((cells[0].get_text(), cells[5].get_text()))
 
   
 
