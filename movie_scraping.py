@@ -36,11 +36,11 @@ for url in url_domestic_list:
     
 # saving the list to my local so I can access it later
 # this uses pickle
-with open('list_of_movie_urls.pkl', 'w') as f:
+with open('domestic.pkl', 'w') as f:
     pickle.dump(movie_url_to_scrape_unique, f)
     
 # now to open it back up to use another time
-with open('list_of_movie_urls.pkl', 'r') as f:
+with open('domestic.pkl', 'r') as f:
     domestic_urls = pickle.load(f)
 # now the object 'domestic_urls' will have all the urls we previously scraped
 
@@ -80,7 +80,7 @@ def get_movie_value(soup, field_name):
 
 
 # import domestic urls from local
-with open('list_of_movie_urls.pkl', 'r') as f:
+with open('domestic_urls.pkl', 'r') as f:
     domestic_urls = pickle.load(f)
 
 # looping through and scraping elements from each movie url!!
@@ -113,7 +113,7 @@ for movie in domestic_urls:
     	
 
 # import foreign_urls from local
-with open('foreign_urls.pkl', 'w') as f:
+with open('foreign_urls.pkl', 'r') as f:
     foreign_urls = pickle.load(f)
 
 # looping through and scraping foreign revenue elements
