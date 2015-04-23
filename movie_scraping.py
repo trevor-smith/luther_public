@@ -84,7 +84,7 @@ with open('domestic_urls.pkl', 'r') as f:
     domestic_urls = pickle.load(f)
 
 # looping through and scraping elements from each movie url!!
-domestic_dict = {}
+domestic_list = []
 
 for movie in domestic_urls:
     movie = str(movie)
@@ -108,8 +108,8 @@ for movie in domestic_urls:
         director = get_movie_value(soup, "Director")
         writers = get_movie_value(soup, "Writers:")
         actors = get_movie_value(soup, "Actors:")
-        domestic_dict.setdefault(title, []).append(tuple((dtg, runtime, rating, release_date, genre,
-                                                             production_budget)))
+        domestic_list.append({'title':title,'dtg':dtg,'runtime':runtime,'rating':rating, 
+        'release date':release_date, 'production budget':production_budget,'worldwide':worldwide,'url':str(movie)})
     	
 
 # import foreign_urls from local
